@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Image Tools - Background Remover & More</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #2c3e50; /* Gray background */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #ecf0f1;
+    }
+
+    .container {
+      background: #34495e; /* Darker gray container */
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      max-width: 1000px;
+      width: 100%;
+      animation: fadeIn 1s ease-in-out;
+      position: relative;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #ecf0f1;
+      animation: slideIn 1s ease-in-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    p {
+      font-size: 1rem;
+      color: #bdc3c7;
+      margin-bottom: 2rem;
+      animation: slideIn 1.2s ease-in-out;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
+    .toolbar button {
+      padding: 0.75rem 1.5rem;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .toolbar button:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    .upload-container {
+      border: 2px dashed #3498db;
+      padding: 2rem;
+      border-radius: 10px;
+      background: #2c3e50;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .upload-container:hover {
+      background: #34495e;
+    }
+
+    .upload-container input {
+      display: none;
+    }
+
+    .upload-container label {
+      font-size: 1rem;
+      color: #3498db;
+      cursor: pointer;
+    }
+
+    .result-container {
+      margin-top: 2rem;
+      display: none;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .result-container img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .download-btn {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background: #2980b9;
+    }
+
+    .loader {
+      display: none;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 1rem auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .filter-options {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .filter-options button {
+      padding: 0.5rem 1rem;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .filter-options button:hover {
+      background: #2980b9;
+    }
+
+    /* Pricing Section */
+    .pricing {
+      margin-top: 3rem;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .pricing h2 {
+      font-size: 2rem;
+      color: #ecf0f1;
+      margin-bottom: 1rem;
+    }
+
+    .pricing-table {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    .pricing-card {
+      background: #2c3e50;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      width: 200px;
+    }
+
+    .pricing-card h3 {
+      font-size: 1.5rem;
+      color: #ecf0f1;
+      margin-bottom: 1rem;
+    }
+
+    .pricing-card p {
+      font-size: 1rem;
+      color: #bdc3c7;
+      margin-bottom: 1rem;
+    }
+
+    .pricing-card .price {
+      font-size: 2rem;
+      color: #3498db;
+      font-weight: bold;
+    }
+
+    .pricing-card button {
+      padding: 0.75rem 1.5rem;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .pricing-card button:hover {
+      background: #2980b9;
+    }
+
+    /* Home Button */
+    .home-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .home-btn:hover {
+      background: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Home Button -->
+    <button class="home-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">Home</button>
+
+    <h1>Pro Image Tools</h1>
+    <p>Remove background, crop, and apply filters to your images effortlessly.</p>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button id="remove-bg-btn">Remove Background</button>
+      <button id="crop-btn">Crop Image</button>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="upload-container" id="upload-container">
+      <input type="file" id="file-input" accept="image/*">
+      <label for="file-input">Choose an Image or Drag & Drop</label>
+    </div>
+
+    <!-- Result Section -->
+    <div class="result-container" id="result-container">
+      <img id="result-image" src="" alt="Processed Image">
+      <div class="filter-options" id="filter-options">
+        <button data-filter="none">None</button>
+        <button data-filter="grayscale(100%)">Grayscale</button>
+        <button data-filter="sepia(100%)">Sepia</button>
+        <button data-filter="brightness(150%)">Brightness</button>
+      </div>
+      <button class="download-btn" id="download-btn">Download Image</button>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader" id="loader"></div>
+
+    <!-- Pricing Section -->
+    <div class="pricing">
+      <h2>Pricing Plans</h2>
+      <div class="pricing-table">
+        <div class="pricing-card">
+          <h3>Basic</h3>
+          <p>Up to 50 images/month</p>
+          <p class="price">$10</p>
+          <button onclick="window.location.href='https://api.whatsapp.com/send?phone=918090025976'">Choose Plan</button>
+        </div>
+        <div class="pricing-card">
+          <h3>Pro</h3>
+          <p>Up to 200 images/month</p>
+          <p class="price">$25</p>
+          <button onclick="window.location.href='https://api.whatsapp.com/send?phone=918090025976'">Choose Plan</button>
+        </div>
+        <div class="pricing-card">
+          <h3>Premium</h3>
+          <p>Unlimited images</p>
+          <p class="price">$50</p>
+          <button onclick="window.location.href='https://api.whatsapp.com/send?phone=918090025976'">Choose Plan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const uploadContainer = document.getElementById('upload-container');
+    const resultContainer = document.getElementById('result-container');
+    const resultImage = document.getElementById('result-image');
+    const downloadBtn = document.getElementById('download-btn');
+    const loader = document.getElementById('loader');
+    const filterOptions = document.getElementById('filter-options');
+    const removeBgBtn = document.getElementById('remove-bg-btn');
+    const cropBtn = document.getElementById('crop-btn');
+
+    let cropper;
+    let processedImageUrl;
+
+    // API Key for Remove.bg (Replace with your own API key)
+    const API_KEY = 'pZQXR48Z6ykkbUyPRA4VEbTg';
+    const API_URL = 'https://api.remove.bg/v1.0/removebg';
+
+    // Handle file upload
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        loader.style.display = 'block';
+        uploadContainer.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('image_file', file);
+        formData.append('size', 'auto');
+
+        try {
+          const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+              'X-Api-Key': API_KEY,
+            },
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to remove background');
+          }
+
+          const blob = await response.blob();
+          processedImageUrl = URL.createObjectURL(blob);
+
+          resultImage.src = processedImageUrl;
+          resultContainer.style.display = 'block';
+          loader.style.display = 'none';
+
+          // Initialize Cropper.js
+          cropper = new Cropper(resultImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+          });
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred while removing the background.');
+          loader.style.display = 'none';
+          uploadContainer.style.display = 'block';
+        }
+      }
+    });
+
+    // Download button functionality
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.href = processedImageUrl;
+      link.download = 'processed-image.png';
+      link.click();
+    });
+
+    // Apply filters
+    filterOptions.addEventListener('click', (event) => {
+      if (event.target.tagName === 'BUTTON') {
+        const filter = event.target.getAttribute('data-filter');
+        resultImage.style.filter = filter;
+      }
+    });
+
+    // Crop button functionality
+    cropBtn.addEventListener('click', () => {
+      if (cropper) {
+        const croppedCanvas = cropper.getCroppedCanvas();
+        processedImageUrl = croppedCanvas.toDataURL('image/png');
+        resultImage.src = processedImageUrl;
+      }
+    });
+
+    // Drag and drop functionality
+    uploadContainer.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      uploadContainer.style.backgroundColor = '#34495e';
+    });
+
+    uploadContainer.addEventListener('dragleave', () => {
+      uploadContainer.style.backgroundColor = '#2c3e50';
+    });
+
+    uploadContainer.addEventListener('drop', (event) => {
+      event.preventDefault();
+      uploadContainer.style.backgroundColor = '#2c3e50';
+      fileInput.files = event.dataTransfer.files;
+      fileInput.dispatchEvent(new Event('change'));
+    });
+  </script>
+</body>
+</html>
